@@ -1,0 +1,357 @@
+
+</!DOCTYPE html>
+<!--
+
+    ドロップ倍率計算機
+
+    [2018/08/06] 極光の周回での利用例を追加
+    [2018/06/16] 倍率計算機作成
+
+    kei at GBF
+
+-->
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2019 by miklpudding (http://jsbin.com/nahefud/10/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>ドロップ率計算</title>
+
+    <style>
+    #t1, #t2, #t3, #t4 {
+        text-align: right;
+    }
+    #drop-up, #drop-rate {
+        font-weight: bold;
+    }
+    input[type=number] {
+        text-align: right;
+    }
+
+    fieldset {
+        border: 1px groove #ddd !important;
+        padding: 0 1em 1em 1em !important;
+        margin: 0 0 0 0 !important;
+        border-bottom:none;
+    }
+    legend {
+        width:auto !important;
+        padding:0 10px;
+    }
+
+    table, th, td {
+        border: solid 1px black;
+        padding: 5px;
+    }
+
+    #k-result, #k-time-result {
+    	font-weight: bold;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <h2>ドロップ率計算</h2>
+    </nav>
+
+    <form>
+
+    基礎ドロップ率: <input type="text" id="drop-base" value="40"> % x
+    ドロップ倍率: <span id="drop-up"></span> <small>(<span id="drop-up-per"></span> %up)</small> =
+    ドロップ率: <span id="drop-rate"></span> %
+    <hr>
+
+    <fieldset>
+        <legend>編成</legend>
+
+        <label for="c1">メイン武器</label>
+        <select id="c1">
+            <!-- NOTE: value 25 stand for 2.5% here, need parseInt -->
+            <option value="0">なし</option>
+            <option value="25">Slv1 (2.5%)</option>
+            <option value="30">スノーフレーク Slv10(3%)</option>
+            <option value="30">セプティアン・バーナー Slv10(3%)</option>
+            <option value="50">オリバー/浄瑠璃 (5%)</option>
+            <option value="75">ダマスカスナイフ Slv10 (5%)</option>
+            <option value="75">ダマスカスナイフ Slv15 (7.5%)</option>
+        </select>
+        +
+        <input type="checkbox" id="c2">
+        <label for="c2">Dビィ (3%)</label>
+        +
+        <label for="c3">自石:</label>
+        <select id="c3">
+            <option value="0">なし</option>
+            <option value="10">ノビヨ (10%)</option>
+            <option value="10">ウサギ (10%)</option>
+            <option value="15">3凸ウサギ (15%)</option>
+            <option value="20">カグヤ (20%)</option>
+            <option value="25">3凸カグヤ (25%)</option>
+        </select>
+        +
+        <label for="c4">サポ石:</label>
+        <select id="c4">
+            <option value="0">なし</option>
+            <option value="10">ノビヨ (10%)</option>
+            <option value="10">ウサギ (10%)</option>
+            <option value="15">3凸ウサギ (15%)</option>
+            <option value="20">カグヤ (20%)</option>
+            <option value="25">3凸カグヤ (25%)</option>
+        </select>
+        +
+        <label for="c5">エッセル</label>
+        <select id="c5">
+            <option value="0">なし</option>
+            <option value="5">あり (5%)</option>
+            <option value="10">Lv90▲ (10%)</option>
+        </select>
+
+        = <div id="t1">1.0</div>
+    </fieldset>
+
+    <fieldset>
+        <legend>トレハン</legend>
+        <select id="bountyLv">
+            <option value="0">なし</option>
+            <option value="20">1 (20%)</option>
+            <option value="22">2 (22%)</option>
+            <option value="24">3 (24%)</option>
+            <option value="26">4 (26%)</option>
+            <option value="28">5 (28%)</option>
+            <option value="31">6 (31%)</option>
+            <option value="35">7 (35%)</option>
+            <option value="40">8 (40%)</option>
+            <option value="50">9 (50%)</option>
+            <option value="70">10 (70%)</option>
+        </select>
+        <div id="t2">1.0</div>
+    </fieldset>
+    <fieldset>
+        <legend>風見鶏</legend>
+        <select id="weatherVane">
+            <option value="0">なし</option>
+            <option value="10">Lv1 (10%)</option>
+            <option value="15">Lv2 (15%)</option>
+            <option value="20">Lv3 (20%)</option>
+        </select>
+        <div id="t3">1.0</div>
+    </fieldset>
+
+    <fieldset>
+        <legend>雫</legend>
+        <select id="journeyDrop">
+            <option value="0">なし</option>
+            <option value="2">2%</option>
+            <option value="5">5%</option>
+            <option value="7">7%</option>
+            <option value="10">10%</option>
+            <option value="">▼ キャンペーン中</option>
+            <option value="4">4%</option>
+            <option value="10">10%</option>
+            <option value="14">14%</option>
+            <option value="20">20%</option>
+        </select>
+        <div id="t4">1.0</div>
+    </fieldset>
+
+    </form>
+
+    <hr>
+
+    <ul>
+        <li>基礎ドロップ率は、箱の落ちる確率。別途ドロップ検証のスプシ等で調べてください。
+        </li>
+        <li>枠内の項目は加算、枠同士は乗算でドロップ倍率を計算。</li>
+        <li>倍率上限は200%up(3倍)。<small>過剰にならないよう、上限ラインを目指せる編成を組む時の参考に。</small></li>
+        <!--
+        <li><a href="https://gbf.wiki/Reward_Chests#Drop_rate_values">基礎ドロップ率 [en]</a> / 
+            <a href="https://gbf.wiki/Drop_Tables">ドロップテーブル [en]</a></li>
+        -->
+        <li>※ ドロップ率アップは、赤箱、青箱、箱内の抽選には影響しません。</li>
+    </ul>
+
+    <hr>
+    <h4>例: 極光周回</h4>
+
+    <table><thead><tr><th style="text-align:right">倍率 (%up)</th><th>計算式 (箱1+箱2+箱3)</th><th>ドロップ個数期待値/100周</th><th>備考</th></tr></thead><tbody><tr><td style="text-align:right">0</td><td>1 + 0.4 + 0.2</td><td>160</td><td>ドロップアップなし</td></tr><tr><td style="text-align:right">50</td><td>1 + (0.4 x 1.5) + (0.2 x 1.5)</td><td>190</td><td>団サポ+雫+片面兎</td></tr><tr><td style="text-align:right">100</td><td>1 + (0.4 x 2) + (0.2 x 2)</td><td>220</td><td>ドロップアップ重視編成(トレハンなし)</td></tr><tr><td style="text-align:right">150</td><td>1 + 1 + (0.2 x 2.5)</td><td>250</td><td>箱2確定(トレハン必須)</td></tr><tr><td style="text-align:right">200</td><td>1 + 1 + (0.2 x 3)</td><td>260</td><td>ドロップ倍率最大</td></tr></tbody></table>
+    <br>
+
+    <ul>
+        <li>極光で鱗の基礎ドロップ率 箱1(100%) 箱2(40%) 箱3 (20%)</li>
+        <li>(時間を考えない場合) 倍率/ドロップ数の費用対効果は 2.5倍(150%up) 迄が良<br>
+            以降は、箱2ドロップ率の余剰がロスとなる。</li>
+        <li>トレハンを上げるのに時間を掛けるより、周回速度を優先した方が良いライン。<br>
+            ドロップ 2.5倍にはトレハンが必須になる。</li>
+        <li>(トレハンを入れる場合)オート周回では困難。自動でトレハンが付くものが有用。
+            <ul>
+            <li>クリスティーナや浄瑠璃・魔獄での通常攻撃</li>
+            <li>浄瑠璃もしくはトレハン称号槍の奥義効果(wave3で奥義を打つように調整が必要)</li>
+            </ul>
+        </li>
+
+        <li>トレハンにアビポチが必要な場合は、時間ロスも考慮する。</li>
+    </ul>
+
+    <hr>
+    <h4>極光周回見積</h4>
+    <p>
+        基本的には、ドロップアップの為に周回速度が遅くなるなら、<br>
+        火力はある程度保って周回数を増やした方が枚数は稼げます。<br>
+        ドロップアップ重視は、半汁を節約したい場合の選択肢。<br>
+        <br>
+    </p>
+
+    <form>
+        討伐時間: <input type="number" id="k-time" value="60" min="0" max="1000"> 秒 <small>(石選択時間を含む)</small><br>
+        ドロップ倍率: <input type="number" id="k-drop" value="100" min="0" max="200">%up <br>
+        一時間で稼げる鱗の期待値: <span id="k-result"></span> <small>(目安として半汁AP=50換算。回復量はランクにより変動します)</small><br>
+        <input type="number" id="k-goal" value="500" min="0" max="10000"> 枚
+        集める為に掛かる時間 <small>(ドロップ率は期待値で計算) </small>
+        <span id="k-time-result"></span>
+    </form>
+
+    <ul>
+        <li><small>TODO: 半額時のAP計算を選択できるようにする。</small></li>
+        <li><small>TODO: ランクによる半汁回復量の対応。</small></li>
+        <li><small>TODO: 見積もり結果、もう少し見やすく変更したい。</small></li>
+        <li><small>TODO: 義賊オートでトレハンを入れるか(AP効率)、黒猫+最終サラーサで高速周回(時間効率)の比較。</small></li>
+    </ul>
+
+    <hr>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script>
+    function updateDropRate()
+    {
+        var t1 = parseFloat($("#t1").text());
+        var t2 = parseFloat($("#t2").text());
+        var t3 = parseFloat($("#t3").text());
+        var t4 = parseFloat($("#t4").text());
+        var dropUp = 1.0 * t1 * t2 * t3 * t4;
+        var dropBase = parseFloat($("#drop-base").val());
+        var total = (dropBase * Math.min(3, dropUp)).toFixed(3);
+
+        $("#drop-rate").text(total);
+        $("#drop-rate").css("color",
+            (total > 101) ? "#ff7777" :
+            (total > 80) ? "#55dd55" :
+            (total > 50) ? "#7777ff" :
+            "black");
+        $("#drop-up").text(dropUp.toFixed(3));
+        $("#drop-up").attr("title",
+            t1 + " x " + t2 + " x " + t3 + " x " + t4 + " = " + dropUp.toFixed(3));
+        $("#drop-up").css("color",
+            (dropUp > 3.1) ? "#ff7777" :
+            (dropUp > 2.5) ? "#55dd55" :
+            (dropUp > 1.5) ? "#7777ff" :
+            "black");
+
+        var dropUpPer = Math.min(200, Math.ceil(dropUp * 100)-100);
+        $("#drop-up-per").text(dropUpPer);
+        $("#k-drop").val(dropUpPer);
+        updateKyokkouResult();
+
+    }
+
+    function updateT1() {
+        var value = 0;
+        value += (parseInt($("#c1").val())/10) || 0;
+        value += ($("#c2").is(":checked")) ? 3 : 0;
+        value += parseInt($("#c3").val()) || 0;
+        value += parseInt($("#c4").val()) || 0;
+        value += parseInt($("#c5").val()) || 0;
+
+        $("#t1").text((1 + (value/100)).toFixed(2));
+    }
+
+    function updateT2() {
+        $("#t2").text((1 + ($("#bountyLv").val()/100)).toFixed(2));
+    }
+
+    function updateT3() {
+        $("#t3").text((1 + ($("#weatherVane").val()/100)).toFixed(2));
+    }
+
+    function updateT4() {
+        $("#t4").text((1 + ($("#journeyDrop").val()/100)).toFixed(2));
+    }
+
+    function formatTime(s) {
+        var h = Math.floor(s / 3600); s %= 3600;
+        var m = Math.floor(s / 60); s %= 60;
+        s = Math.floor(s);
+
+        return h + ":" +
+        		((10 > m) ? "0" : "") + m + ":" +
+        		((10 > s) ? "0" : "") + s;
+
+    }
+
+
+    function updateKyokkouResult() {
+        var time = parseInt($("#k-time").val());
+        var rate = 1 + parseInt($("#k-drop").val())/100;
+        var goal = parseInt($("#k-goal").val());
+        var v = (1 + (0.4 * rate) + (0.2 * rate));
+
+        var n = Math.floor((60*60) / time);
+        var m = Math.floor(n * v);
+        $("#k-result").text(m + "枚/" + n + "周" + "/消費AP:" + (n*40) + "/半汁" + Math.ceil(n*40/50) + "本");
+
+        var x = Math.ceil(goal / v);
+        $("#k-time-result").text(
+        	"時間 " + formatTime(time * x) + "/" + x + "周" + "/消費AP:" + (x*40) + "/半汁" + Math.ceil(x*40/50) + "本"
+        );
+
+    }
+    </script>
+    <script>
+        // Add event listeners
+        $(document).ready(function(){
+            $("#bountyLv").on("change", updateT2);
+            $("#weatherVane").on("change", updateT3);
+            $("#journeyDrop").on("change", updateT4);
+            $("#c1,#c2,#c3,#c4,#c5").on("change", updateT1);
+            $("#bountyLv,#weatherVane,#journeyDrop,#drop-base,#c1,#c2,#c3,#c4,#c5").on(
+                "change", updateDropRate);
+            updateDropRate();
+
+            $("#k-time").on("change", updateKyokkouResult);
+            $("#k-drop").on("change", updateKyokkouResult);
+            $("#k-goal").on("change", updateKyokkouResult);
+            updateKyokkouResult();
+        });
+    </script>
+<script src="http://static.jsbin.com/js/render/edit.js?4.1.7"></script>
+<script>jsbinShowEdit && jsbinShowEdit({"static":"http://static.jsbin.com","root":"http://jsbin.com"});</script>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-1656750-34', 'auto');
+ga('require', 'linkid', 'linkid.js');
+ga('require', 'displayfeatures');
+ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>
